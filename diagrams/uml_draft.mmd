@@ -1,0 +1,66 @@
+classDiagram
+    direction LR
+
+    class Owner {
+        +String name
+        +List~Pet~ pets
+        +int available_minutes
+        +String day_start
+        +List~String~ preferred_types
+        +add_pet(pet: Pet) void
+    }
+
+    class Pet {
+        +String name
+        +String animal_type
+        +int age
+        +List~Task~ tasks
+        +add_task(task: Task) void
+        +total_task_minutes() int
+    }
+
+    class Task {
+        +String title
+        +String task_type
+        +int duration_minutes
+        +Priority priority
+        +String recurrence
+        +is_due_today() bool
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    class Scheduler {
+        +build_plan(owner: Owner) Schedule
+        -sort_tasks(tasks: List~Task~) list
+        -fits(task: Task, used_minutes: int) bool
+    }
+
+    class Schedule {
+        +String date
+        +List~ScheduledTask~ entries
+        +List~Task~ skipped
+        +int total_minutes
+        +add_entry(entry: ScheduledTask) void
+        +summary() String
+    }
+
+    class ScheduledTask {
+        +Task task
+        +Pet pet
+        +String start_time
+    }
+
+    Owner "1" *-- "0..*" Pet : owns
+    Pet "1" *-- "0..*" Task : needs
+    Task --> Priority : rated by
+    Scheduler ..> Owner : reads pets and constraints
+    Scheduler --> Schedule : produces
+    Schedule "1" *-- "0..*" ScheduledTask : contains
+    ScheduledTask --> Task : places
+    ScheduledTask --> Pet : for
