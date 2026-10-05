@@ -5,8 +5,28 @@
 **a. Initial design**
 
 - Users should be able to add and edit tasks, enter owner and pet info, generate a plan.
-- Briefly describe your initial UML design.
+
+- Briefly describe your initial UML design
+    Owner has pets, available time, a day start time, and preferred task types.
+    Pet has care tasks, each with a duration, recurrence, and Priority (LOW, MEDIUM, or HIGH).
+    Scheduler uses the owner’s pets and constraints to build a Schedule.
+    Schedule tracks scheduled entries, skipped tasks, and total minutes.
+    ScheduledTask connects a task to a pet and assigns its start time.
+
 - What classes did you include, and what responsibilities did you assign to each?
+    Priority — defines the three importance levels and their order. 
+   
+    Task — knows what a single unit of care is: its title, how long it takes, how important it is, and how often it repeats.
+
+    Pet — holds an animal's identity and the tasks it needs. Answers "how many minutes of care do I require in total?" 
+
+    Owner — holds the person, their pets, and the constraints on their day (available_minutes, day_start, preferred_types).
+
+    ScheduledTask — binds one task to one pet at one start time. Its whole job is keeping those three facts together so they can't get out of sync.
+
+    Schedule — the result. Holds the placed entries, the tasks that didn't fit, and the total time used, and renders itself as readable
+
+    Scheduler — makes the decisions. Sorts tasks, checks what fits in the remaining time, walks the clock forward from day_start, and returns a Schedule.
 
 **b. Design changes**
 
