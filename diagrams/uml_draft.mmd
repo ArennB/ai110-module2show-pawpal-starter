@@ -8,7 +8,8 @@ classDiagram
         +int day_start_minutes
         +add_pet(pet: Pet) void
         +all_tasks() list
-        +pending_tasks() list
+        +filter_tasks(pet_name: String, is_completed: bool, due_by: Date) list
+        +pending_tasks(on: Date) list
     }
 
     class Pet {
@@ -16,6 +17,8 @@ classDiagram
         +String animal_type
         +List~Task~ tasks
         +add_task(task: Task) void
+        +complete_task(task: Task, completed_on: Date) Task
+        +uncomplete_task(task: Task) void
     }
 
     class Task {
@@ -24,8 +27,14 @@ classDiagram
         +Priority priority
         +String frequency
         +bool is_completed
+        +Date due_date
+        +int required_start
+        +bool is_pinned derived
+        +Task successor
         +mark_complete() void
         +mark_incomplete() void
+        +is_due(on: Date) bool
+        +next_occurrence(completed_on: Date) Task
     }
 
     class Priority {
@@ -36,15 +45,19 @@ classDiagram
     }
 
     class Scheduler {
-        +build_plan(owner: Owner) Schedule
-        +reset_for_new_day(owner: Owner) int
-        -sort_tasks(pet_tasks: list) list
+        +build_plan(owner: Owner, on: Date) Schedule
+        +upcoming_tasks(owner: Owner, after: Date) list
+        +find_conflicts(schedule: Schedule) list
+        +describe_conflicts(schedule: Schedule) String
+        +sort_tasks(pet_tasks: list) list
         -fits(task: Task, used_minutes: int, budget_minutes: int) bool
+        -next_free_slot(start: int, duration: int, schedule: Schedule) int
     }
 
     class Schedule {
         +List~ScheduledTask~ entries
         +list skipped
+        +List~String~ warnings
         +int total_minutes derived
         +add_entry(entry: ScheduledTask) void
         +summary() String
@@ -55,6 +68,9 @@ classDiagram
         +Task task
         +int start_minutes
         +String start_time derived
+        +int end_minutes derived
+        +String end_time derived
+        +overlaps(other: ScheduledTask) bool
     }
 
     Owner "1" *-- "0..*" Pet : owns
@@ -65,6 +81,7 @@ classDiagram
     Schedule "1" *-- "0..*" ScheduledTask : contains
     ScheduledTask --> Task : places
     ScheduledTask --> Pet : for
+    Task --> Task : queues successor
 
     note for Schedule "skipped holds (Pet, Task) pairs, so a skipped line can name its pet"
     note for Scheduler "sort_tasks takes and returns (Pet, Task) pairs, keeping the pet through the sort"

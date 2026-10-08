@@ -40,12 +40,34 @@
 **a. Constraints and priorities**
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
+
+My scheduler considers four constraints:
+
+Available time: Tasks must fit within the owner’s time budget. Tasks that do not fit are listed as skipped.
+
+Priority: Higher-priority tasks are scheduled first.
+
+Fixed start times: Appointments are scheduled at their required times. Flexible tasks fit around them.
+
+Completion and due date: Completed tasks and tasks due after today are left out.
+
 - How did you decide which constraints mattered most?
+
+I put available time and fixed appointments first because ignoring either would make the plan impossible to follow. Priority then decides which flexible tasks get scheduled when time is limited.
+
+I also removed owner preferences because the scheduler did not actually use them. Keeping them would suggest a feature worked when it did not.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+
+When tasks have the same priority, the scheduler puts shorter tasks first. For example, it schedules a 10-minute feeding before a 30-minute walk. This helps fit more tasks into the available time, but the order may feel less natural.
+
 - Why is that tradeoff reasonable for this scenario?
+
+A busy owner has limited time, so completing more care tasks is useful. The owner can adjust the suggested order if needed.
+
+The scheduler also continues after a task does not fit. If 20 minutes remain, it skips a 25-minute walk but can still schedule 15 minutes of playtime. This uses the remaining time, though it may mean a lower-priority task gets scheduled while a higher-priority task is skipped.
 
 ---
 
