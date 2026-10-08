@@ -176,6 +176,9 @@ class Pet:
         The new instance is recorded on the original as its successor, so an
         undo can find and remove it again.
 
+        Completing a task that is already done is a no-op: it returns the
+        successor queued the first time instead of queueing a duplicate.
+
         Args:
             task: One of this pet's tasks.
             completed_on: The day it was finished; defaults to today.
@@ -183,6 +186,8 @@ class Pet:
         Returns:
             The queued next instance, or None if the task does not repeat.
         """
+        if task.is_completed:
+            return task.successor
         task.mark_complete()
         task.successor = task.next_occurrence(completed_on)
         if task.successor is not None:
