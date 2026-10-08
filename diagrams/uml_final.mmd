@@ -1,0 +1,96 @@
+classDiagram
+    direction LR
+
+    class Owner {
+        +String name
+        +List~Pet~ pets
+        +int available_minutes
+        +int day_start_minutes
+        +add_pet(pet: Pet) void
+        +all_tasks() List~Pet, Task~
+        +filter_tasks(pet_name: String?, is_completed: bool?, due_by: Date?) List~Pet, Task~
+        +pending_tasks(on: Date?) List~Pet, Task~
+    }
+
+    class Pet {
+        +String name
+        +String animal_type
+        +List~Task~ tasks
+        +add_task(task: Task) void
+        +complete_task(task: Task, completed_on: Date?) Task?
+        +uncomplete_task(task: Task) void
+    }
+
+    class Task {
+        +String title
+        +int duration_minutes
+        +Priority priority
+        +String frequency
+        +bool is_completed
+        +Date due_date
+        +int? required_start
+        +Task? successor
+        +bool is_pinned derived
+        +mark_complete() void
+        +mark_incomplete() void
+        +is_due(on: Date?) bool
+        +next_occurrence(completed_on: Date?) Task?
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW = 1
+        MEDIUM = 2
+        HIGH = 3
+    }
+
+    class Scheduler {
+        +build_plan(owner: Owner, on: Date?) Schedule
+        +sort_tasks(pet_tasks: List~Pet, Task~) List~Pet, Task~
+        +find_conflicts(schedule: Schedule) List~ScheduledTask, ScheduledTask~
+        +describe_conflicts(schedule: Schedule) String
+        +upcoming_tasks(owner: Owner, after: Date?) List~Pet, Task~
+        -next_free_slot(start_minutes: int, duration_minutes: int, schedule: Schedule) int
+        -fits(task: Task, used_minutes: int, budget_minutes: int) bool
+        -describe_pair(earlier: ScheduledTask, later: ScheduledTask) String
+    }
+
+    class Schedule {
+        +List~ScheduledTask~ entries
+        +List~Pet, Task~ skipped
+        +List~String~ warnings
+        +int total_minutes derived
+        +add_entry(entry: ScheduledTask) void
+        +summary() String
+    }
+
+    class ScheduledTask {
+        +Pet pet
+        +Task task
+        +int start_minutes
+        +String start_time derived
+        +int end_minutes derived
+        +String end_time derived
+        +overlaps(other: ScheduledTask) bool
+    }
+
+    %% Pets live in Streamlit session_state and outlive each rebuilt Owner,
+    %% so Owner aggregates them rather than composing them.
+    Owner "1" o-- "0..*" Pet : cares for
+    Pet "1" *-- "0..*" Task : needs
+    Task --> Priority : rated by
+    Task "1" --> "0..1" Task : successor
+    Pet ..> Task : creates next occurrence
+
+    Scheduler ..> Owner : reads pets and constraints
+    Scheduler ..> Schedule : creates
+    Scheduler ..> ScheduledTask : places and compares
+    Schedule "1" *-- "0..*" ScheduledTask : entries
+    Schedule --> "0..*" Task : skipped (with Pet)
+    ScheduledTask --> "1" Task : places
+    ScheduledTask --> "1" Pet : for
+
+    note for Task "FREQUENCY_STEPS maps daily and weekly to a timedelta; once does not repeat. Next due date counts from the completion day."
+    note for Pet "complete_task is idempotent: completing a done task returns the existing successor. uncomplete_task removes the successor by identity."
+    note for Scheduler "Stateless. build_plan places fixed-time tasks first, then flexible tasks in sort_tasks order (priority high to low, shortest first) into the first free slot. Overlaps left over are pinned clashes, kept and reported in Schedule.warnings."
+    note for ScheduledTask "Times are minutes since midnight; overlaps treats each placement as a half-open interval [start, end)."

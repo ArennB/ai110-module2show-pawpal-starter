@@ -71,7 +71,7 @@ Skipped (not enough time left):
 
 ```bash
 # Run the full test suite:
-pytest
+pytest -m pytest
 
 # Run with coverage:
 pytest --cov
@@ -80,8 +80,24 @@ pytest --cov
 Sample test output:
 
 ```
-# Paste your pytest output here
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/arenn/Documents/GitHub/ai110-module2show-pawpal-starter
+plugins: anyio-4.15.1
+collected 42 items                                                                                             
+
+tests/test_pawpal.py ..........................................                                          [100%]
+
+============================================== 42 passed in 0.04s ==============================================
 ```
+
+## Features
+
+- **Sorting by priority** - high to low, shortest first on ties
+- **Time-budget fitting** - skips what doesn't fit, keeps trying shorter tasks
+- **Fixed-time tasks** - pinned appointments, with flexible tasks routed around them
+- **Conflict warnings** - flags overlapping tasks for the same pet or different pets
+- **Daily/weekly recurrence** - completing a task queues its next occurrence
+- **Filtering** - by pet, completion status, or due date
 
 ## Smarter Scheduling
 
@@ -209,14 +225,57 @@ as dataclasses, so `list.remove` would drop whichever came first.
 
 `Scheduler.upcoming_tasks()` lists what's queued for later, soonest first.
 
-## 📸 Demo Walkthrough
+## Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+Run the app with `streamlit run app.py`.
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+**What a user can do**
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+- Set the owner's name and minutes available today
+- Add pets (name and species)
+- Add tasks with a duration, priority, repeat setting, and optional fixed start time
+- Filter the task list by pet or status, and check tasks off
+- Generate today's schedule and see what was planned, skipped, or in conflict
+
+**Example workflow**
+
+1. Enter owner `Jordan` with 75 minutes available.
+2. Add pets `Mochi` (dog) and `Luna` (cat).
+3. Add tasks, e.g. `Feeding` for each pet, and a `Vet appointment` for Mochi fixed at `09:00`.
+4. Click **Generate schedule** to view today's plan.
+5. Check off a daily task; its next instance appears under **Queued for later**.
+
+**Key scheduler behaviors**
+
+- **Sorting** - highest priority first, shortest first on ties
+- **Time budget** - tasks that don't fit are listed as skipped
+- **Fixed times** - pinned tasks stay put; flexible tasks fill the free slots around them
+- **Conflict warnings** - overlapping fixed-time tasks are kept and flagged
+- **Recurrence** - completing a daily/weekly task queues the next one
+
+**Sample CLI output** (`python main.py`, excerpt)
+
+```
+--- Today's Schedule --------------------------------------------
+Daily plan:
+  08:00 - Feeding for Mochi (10 min) [priority: high, daily]
+  08:10 - Feeding for Luna (10 min) [priority: high, daily]
+  08:20 - Vet paperwork for Mochi (5 min) [priority: low]
+  09:00 - Vet appointment for Mochi (30 min) [priority: high]
+  09:00 - Medication for Luna (15 min) [priority: high, daily]
+  Total planned: 70 min
+  Order: highest priority first, shortest first on ties.
+
+Skipped (not enough time left):
+  Morning walk for Mochi (30 min) [priority: high, daily]
+  Playtime for Luna (15 min) [priority: medium, daily]
+  Evening walk for Mochi (45 min) [priority: medium, daily]
+  Brush fur for Luna (20 min) [priority: low, weekly]
+
+Warnings:
+  Vet appointment for Mochi (09:00-09:30) overlaps Medication for Luna (09:00-09:15) [different pets]
+
+--- Queued for later --------------------------------------------
+  2026-10-08  Morning walk for Mochi (daily)
+  2026-10-08  Feeding for Mochi (daily)
+```

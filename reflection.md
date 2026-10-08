@@ -31,6 +31,7 @@
 **b. Design changes**
 
 - Did your design change during implementation?
+No, it did not
 - If yes, describe at least one change and why you made it.
 
 ---
@@ -76,12 +77,22 @@ The scheduler also continues after a task does not fit. If 20 minutes remain, it
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+
+I used AI to turn my UML into class stubs, implement sorting, conflict detection and recurrence step by step, write tests, connect the logic to the Streamlit UI, and draft documentation.
+
 - What kinds of prompts or questions were most helpful?
+
+Specific, file-scoped prompts worked best, such as "add conflict detection to Scheduler in pawpal_system.py". Asking "what edge cases could break this?" was also useful, because it surfaced cases like back-to-back tasks and completing a task twice.
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
+
+The early design gave Owner a list of preferred task types, but the scheduler never used it. I removed it rather than keep a field that suggested a feature that didn't exist. I also cut down AI drafted documentation that was longer than it needed to be.
+
 - How did you evaluate or verify what the AI suggested?
+
+I ran `main.py` to check the output by eye, ran the pytest suite after each change, and tried the same steps in the Streamlit app.
 
 ---
 
@@ -90,12 +101,22 @@ The scheduler also continues after a task does not fit. If 20 minutes remain, it
 **a. What you tested**
 
 - What behaviors did you test?
+
+Sorting (priority, tie-breaking, stability), fitting tasks into the time budget (exact fit, skipping and continuing), recurrence (daily, weekly, year rollover, late completion, undo), due dates (overdue carry-over, future tasks left out), conflict detection (overlap, back-to-back, same-time fixed tasks), and time parsing. There are 42 tests, and all pass.
+
 - Why were these tests important?
+
+The scheduler's value depends on these rules being right. A bug in sorting or recurrence would quietly produce a wrong plan without crashing, so tests are the only reliable way to catch it.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+
+Fairly confident (4/5). The core rules and their edge cases are covered, but the Streamlit UI is only tested by hand.
+
 - What edge cases would you test next if you had more time?
+
+A plan that runs past midnight, a fixed task set before the day's start time, two pets with the same name, and a fixed task that is longer than the whole time budget.
 
 ---
 
@@ -105,10 +126,16 @@ The scheduler also continues after a task does not fit. If 20 minutes remain, it
 
 - What part of this project are you most satisfied with?
 
+Conflict handling. Flexible tasks are routed around fixed appointments, and clashes that can't be resolved are reported instead of hidden or crashing the app.
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+I would save pets and tasks to a file so they last between sessions, allow editing and deleting tasks, and suggest a new time when two fixed tasks clash instead of only warning.
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+Designing the classes first made the AI's help much more useful, because I could give it clear, small tasks. But I still had to check every suggestion, since AI will confidently add things that look right but aren't needed or don't work.
